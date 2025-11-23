@@ -1,0 +1,29 @@
+# Copy to config.yml and fill in your values
+
+feeds:
+  - url: "https://example.com/feed.xml"
+    name: "Example Feed"
+  - url: "https://another.com/rss"
+    name: "Another Feed"
+
+interests:
+  - "R programming"
+  - "biostatistics"
+  - "tidyverse"
+  - "machine learning"
+  - "data visualization"
+
+summarization:
+  model: "claude-sonnet-4-20250514"
+  max_tokens: 300
+  articles_per_summary: 2-3 sentences
+
+ranking:
+  top_n: 15  # Number of articles to include in digest
+
+discord:
+  webhook_url: "${DISCORD_WEBHOOK_URL}"  # Set in .env
+
+schedule:
+  time: "07:00"  # 24-hour format
+  timezone: "America/Chicago"  # Dallas, TX
