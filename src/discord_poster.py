@@ -65,6 +65,55 @@ class DiscordPoster:
         except Exception as e:
             logger.error(f"Error posting to Discord: {e}")
             return False
+
+    def post_articles_individually(
+        self, 
+        articles: List[Dict],
+         title: str = "📰 Morning RSS Digest",
+         test_webhook: bool = False
+    ) -> bool:
+        """
+        Post each article as a separate message (embed stays with article).
+        
+        Args:
+            articles: List of article dicts
+            title: Title for the digest
+            
+        Returns:
+            True if all successful, False otherwise
+        """
+        logger.info(f"Posting {len(articles)} articles individually to Discord")
+
+        # Only test webhook if requested
+        if test_webhook:
+            if not self.test_webhook():
+                logger.error("Webhook test failed!")
+                return False
+        
+        # Post header first
+        timestamp = datetime.now().strftime("%A, %B %d, %Y at %I:%M %p")
+        header = f"**{title}**\n*{timestamp}*\n*Found {len(articles)} articles*\n"
+        
+        response = requests.post(self.webhook_url, json={"content": header})
+        if response.status_code != 204:
+            logger.error("Failed to post header")
+            return False
+        
+        # Post each article individually
+        for i, article in enumerate(articles, 1):
+            message = f"**{i}. {article['title']}**\n"
+            message += f"*Source: {article['source']}*\n"
+            message += f"{article['ai_summary']}\n"
+            message += f"🔗 {article['link']}"
+            
+            response = requests.post(self.webhook_url, json={"content": message})
+            
+            if response.status_code != 204:
+                logger.error(f"Failed to post article {i}")
+                return False
+        
+        logger.info("✓ Posted all articles individually")
+        return True
     
     def _format_digest(self, articles: List[Dict], title: str) -> str:
         """
