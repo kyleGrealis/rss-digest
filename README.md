@@ -1,14 +1,14 @@
 # RSS Morning Digest
 
-Automated RSS feed curation system that delivers a personalized morning digest to Discord. Uses Claude AI to summarize articles and ranks them by relevance to your interests.
+Automated RSS feed curation system that delivers a personalized morning digest to Discord. Uses Claude AI to summarize articles and ranks them by relevance of interests.
 
 ## 🎯 What It Does
 
 Every morning at 7am, this system:
-1. 📡 Fetches articles from your configured RSS feeds
+1. 📡 Fetches articles from configured RSS feeds
 2. 🤖 Summarizes each article with Claude AI (2-3 sentences)
-3. 📊 Ranks articles by relevance to your interests
-4. 💬 Delivers a three-tier digest to your Discord channel:
+3. 📊 Ranks articles by relevance to interests
+4. 💬 Delivers a three-tier digest to personal Discord channel:
    - **Top 5**: Individual messages with full summaries and embeds
    - **Next 5**: Grouped message with summaries
    - **Next 10**: Quick headlines with links
@@ -35,7 +35,7 @@ Every morning at 7am, this system:
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/rss-digest.git
+git clone https://github.com/kyleGrealis/rss-digest.git
 cd rss-digest
 ```
 
@@ -80,12 +80,12 @@ crontab -e
 ```
 rss-digest/
 ├── src/
-│   ├── feed_fetcher.py      # RSS feed parsing
+│   ├── feed_fetcher.py       # RSS feed parsing
 │   ├── summarizer.py         # Claude AI summarization
 │   ├── ranker.py             # Article relevance scoring
 │   ├── discord_poster.py     # Discord webhook posting
 │   └── digest.py             # Main orchestrator
-├── config.yml                # Your RSS feeds & interests (gitignored)
+├── config.yml                # RSS feeds & interests (gitignored)
 ├── .env                      # API keys (gitignored)
 ├── requirements.txt          # Python dependencies
 ├── test_fetcher.py           # End-to-end test script
@@ -103,8 +103,8 @@ feeds:
     name: "Tech News"
 ```
 
-### Your Interests (`config.yml`)
-Articles are ranked based on keyword matching against your interests:
+### Interests (`config.yml`)
+Articles are ranked based on keyword matching against interests:
 ```yaml
 interests:
   - "R programming"
@@ -133,7 +133,7 @@ python test_fetcher.py
 This will:
 1. Fetch articles from configured feeds
 2. Summarize the first 2-3 with Claude
-3. Post to your Discord channel
+3. Post to Discord channel
 4. Show logs and validation
 
 ## 📊 Example Output
@@ -174,7 +174,7 @@ Found 20 articles
 ## 🔐 Security Notes
 
 - Never commit `.env` or `config.yml` (they're gitignored)
-- Keep your Anthropic API key private
+- Keep Anthropic API key private
 - Discord webhook URLs should be treated as secrets
 - Review `.gitignore` before making repo public
 
