@@ -29,13 +29,13 @@ print(f"✓ Discord Webhook URL loaded")
 
 
 # Test webhook first
-print("🧪 Testing Discord webhook...")
-poster = DiscordPoster(webhook_url=webhook_url)
-if not poster.test_webhook():
-    print("❌ Webhook test failed! Check your URL.")
-    sys.exit(1)
-
-print("✓  Discord webhook test PASSED!")
+# print("🧪 Testing Discord webhook...")
+# poster = DiscordPoster(webhook_url=webhook_url)
+# if not poster.test_webhook():
+    # print("❌ Webhook test failed! Check your URL.")
+    # sys.exit(1)
+# 
+# print("✓  Discord webhook test PASSED!")
 
 
 # Fetch articles
@@ -68,9 +68,15 @@ summarized = summarizer.summarize_batch(articles[:2])  # Just first 2
     # print()
 
 
-# Post to Discord!
-print("📤 Posting to Discord...\n")
-success = poster.post_digest(summarized, title="🧪 Test RSS Digest")
+# Post to Discord - ONE MESSAGE PER ARTICLE!
+print("📤 Posting to Discord (individual messages)...\n")
+poster = DiscordPoster(webhook_url=webhook_url)  # Create poster here now
+success = poster.post_articles_individually(
+    summarized, 
+    title="🧪 JUST SOME MITTERINGS...",
+    # title="🧪 Test RSS Digest - Individual",
+    test_webhook=False  # Test during development
+)
 
 if success:
     print("\n✅ SUCCESS! Check your Discord channel!")
