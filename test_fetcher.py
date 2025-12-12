@@ -6,6 +6,7 @@ sys.path.insert(0, 'src')
 from feed_fetcher import FeedFetcher
 from summarizer import ArticleSummarizer
 from discord_poster import DiscordPoster
+from ranker import create_default_ranker
 import logging
 import os
 
@@ -28,19 +29,11 @@ print(f"✓ API key loaded")
 print(f"✓ Discord Webhook URL loaded")
 
 
-# Test webhook first
-# print("🧪 Testing Discord webhook...")
-# poster = DiscordPoster(webhook_url=webhook_url)
-# if not poster.test_webhook():
-    # print("❌ Webhook test failed! Check your URL.")
-    # sys.exit(1)
-# 
-# print("✓  Discord webhook test PASSED!")
-
 
 # Fetch articles
 feeds = [
     {'url': 'https://www.r-bloggers.com/feed/', 'name': 'R-Bloggers'},
+    {'url': 'https://athleticsweekly.com/feed/', 'name': 'Athletics Weekly'}
 ]
 
 print("📡 Fetching RSS feeds...\n")
@@ -49,33 +42,40 @@ articles = fetcher.fetch_all_feeds(feeds)
 
 print(f"\n🎉 Found {len(articles)} articles!\n")
 
+# Debug: see breakdown by source
+from collections import Counter
+sources = Counter(a['source'] for a in articles)
+print(f"📊 By source: {dict(sources)}\n")
 
-# Summarize just the first 2 (to save API calls during testing)
+
+
+# Summarize (adjust 3 lines down for more articles)
 print("🤖 Summarizing with Claude...\n")
 summarizer = ArticleSummarizer(api_key=api_key)
-summarized = summarizer.summarize_batch(articles[:2])  # Just first 2
+summarized = summarizer.summarize_batch(articles)
 
-# Show results
-# print("\n" + "="*70)
-# print("📰 SUMMARIZED ARTICLES")
-# print("="*70 + "\n")
-# 
-# for i, article in enumerate(summarized, 1):
-    # print(f"{i}. {article['title']}")
-    # print(f"   Source: {article['source']}")
-    # print(f"   Summary: {article['ai_summary']}")
-    # print(f"   Link: {article['link']}")
-    # print()
+
+
+# Rank by relevance
+print("📊 Ranking by relevance...\n")
+ranker = create_default_ranker()
+ranked = ranker.rank_articles(summarized, top_n=10)
+
+
+
+# Show what got ranked
+for article in ranked:
+    print(f"  [{article['relevance_score']:3d}] {article['title'][:50]}")
+
 
 
 # Post to Discord - ONE MESSAGE PER ARTICLE!
-print("📤 Posting to Discord (individual messages)...\n")
+print("📤 Posting to Discord...\n")
 poster = DiscordPoster(webhook_url=webhook_url)  # Create poster here now
 success = poster.post_articles_individually(
-    summarized, 
-    title="🧪 JUST SOME MITTERINGS...",
-    # title="🧪 Test RSS Digest - Individual",
-    test_webhook=False  # Test during development
+    ranked, 
+    title="🧪 RANKED TEST DIGEST...",
+    # title="🧪 Test RSS Digest - Individual"
 )
 
 if success:
