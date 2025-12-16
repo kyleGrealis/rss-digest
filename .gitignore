@@ -1,6 +1,6 @@
 # Secrets
 .env
-config.yml
+!config.yml
 
 # Python
 __pycache__/
