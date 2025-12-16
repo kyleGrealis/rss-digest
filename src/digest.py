@@ -37,7 +37,7 @@ from discord_poster import DiscordPoster
 # LOGGING SETUP
 # ============================================================
 
-def setup_logging(debug: bool = False, log_file: str = None):
+def setup_logging(debug: bool = False, log_file: str = None, console: bool = True):
     """Configure logging for the digest run."""
     root_logger = logging.getLogger()
 
@@ -53,10 +53,11 @@ def setup_logging(debug: bool = False, log_file: str = None):
         datefmt="%Y-%m-%d %H:%M:%S"
     )
 
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(fmt)
-    root_logger.addHandler(console_handler)
+    # Console handler (only if enabled)
+    if console:
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setFormatter(fmt)
+        root_logger.addHandler(console_handler)
 
     # File handler (if specified)
     if log_file:
@@ -333,9 +334,9 @@ def main():
     )
 
     args = parser.parse_args()
-    
-    # Setup logging
-    setup_logging(debug=args.debug, log_file=args.log_file)
+
+    # Setup logging (console output only for dry-run)
+    setup_logging(debug=args.debug, log_file=args.log_file, console=args.dry_run)
     logger = logging.getLogger(__name__)
     
     try:
