@@ -42,8 +42,7 @@ def setup_logging(debug: bool = False, log_file: str = None):
     root_logger = logging.getLogger()
 
     # Clear existing handlers to prevent duplicates
-    for handler in root_logger.handlers[:]:
-        root_logger.removeHandler(handler)
+    root_logger.handlers = []
 
     level = logging.DEBUG if debug else logging.INFO
     root_logger.setLevel(level)
