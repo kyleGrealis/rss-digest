@@ -27,7 +27,7 @@ import yaml
 sys.path.insert(0, str(Path(__file__).parent))
 
 from feed_fetcher import FeedFetcher
-from summarizer import ArticleSummarizer
+from summarizer import create_summarizer
 from ranker import ArticleRanker
 from discord_poster import DiscordPoster
 
@@ -80,10 +80,16 @@ def load_config(config_path: str = "config.yml") -> dict:
     return config
 
 
-def get_env_vars() -> dict:
-    """Load required environment variables."""
+def get_env_vars(config) -> dict:
+    """Load required environment variables and model API configuration."""
     # AI Provider selection (default: gemini for free tier)
-    ai_provider = os.getenv('AI_PROVIDER', 'gemini').lower()
+    # ai_provider = os.getenv('AI_PROVIDER', 'gemini').lower()
+    api_config = config.get('api', {})
+    ai_provider = api_config.get('provider', 'anthropic')  # will return 'gemini' or 'anthropic'
+    ai_provider = ai_provider.lower().strip()
+
+    # Get optional model override
+    model = api_config.get('model')  # None if not specified
     
     # Get API keys
     anthropic_key = os.getenv('ANTHROPIC_API_KEY')
@@ -108,6 +114,7 @@ def get_env_vars() -> dict:
     return {
         'ai_provider': ai_provider,
         'api_key': anthropic_key if ai_provider == 'anthropic' else gemini_key,
+        'model': model,
         'webhook_url': webhook_url,
     }
 
@@ -163,9 +170,10 @@ def run_digest(
     
     # --- STEP 2: SUMMARIZE ---
     logger.info("🤖 Summarizing articles with AI...")
-    summarizer = ArticleSummarizer(
-        api_key=env_vars['api_key'],
+    summarizer = create_summarizer(
         provider=env_vars['ai_provider'],
+        api_key=env_vars['api_key'],
+        model=env_vars.get('model'),  # Optional, None if not specified
     )
     summarized = summarizer.summarize_batch(articles)
     
@@ -266,7 +274,7 @@ def main():
     try:
         # Load config and env vars
         config = load_config(args.config)
-        env_vars = get_env_vars()
+        env_vars = get_env_vars(config)
         
         # Run the pipeline
         exit_code = run_digest(config, env_vars, dry_run=args.dry_run, limit=args.limit)

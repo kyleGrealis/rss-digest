@@ -193,7 +193,7 @@ def create_summarizer(
     Args:
         provider: 'anthropic' or 'gemini'
         api_key: API key for the chosen provider
-        model: Optional model override
+        model: Optional model override (uses defaults if not specified)
     
     Returns:
         Configured summarizer instance
@@ -215,49 +215,3 @@ def create_summarizer(
     else:
         raise ValueError(f"Unknown provider: {provider}. Use 'anthropic' or 'gemini'.")
 
-
-# ============================================================
-# BACKWARDS COMPATIBILITY
-# ============================================================
-
-class ArticleSummarizer:
-    """
-    Backwards-compatible wrapper that auto-detects provider.
-    
-    For new code, prefer create_summarizer() directly.
-    """
-    
-    def __init__(
-        self,
-        api_key: str = None,
-        provider: str = None,
-        gemini_api_key: str = None,
-    ):
-        # Determine provider
-        if provider:
-            self.provider = provider.lower()
-        elif gemini_api_key and not api_key:
-            self.provider = "gemini"
-        else:
-            self.provider = "anthropic"
-        
-        # Get the right API key
-        if self.provider == "gemini":
-            key = gemini_api_key or api_key
-        else:
-            key = api_key
-        
-        if not key:
-            raise ValueError(f"No API key provided for {self.provider}")
-        
-        # Create the underlying summarizer
-        self._summarizer = create_summarizer(
-            provider=self.provider,
-            api_key=key,
-        )
-        
-        logger.info(f"ArticleSummarizer using provider: {self.provider}")
-    
-    def summarize_batch(self, articles: list) -> list:
-        """Delegate to the underlying summarizer."""
-        return self._summarizer.summarize_batch(articles)
