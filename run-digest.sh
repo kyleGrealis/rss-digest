@@ -11,5 +11,5 @@ set -a
 source .env
 set +a
 
-# Run the digest
-/home/kyle/rss-digest/venv/bin/python /home/kyle/rss-digest/src/digest.py >> /home/kyle/rss-digest/logs/digest.log 2>&1
+# Run the digest (logging handled by Python script itself)
+/home/kyle/rss-digest/venv/bin/python /home/kyle/rss-digest/src/digest.py
