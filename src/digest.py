@@ -2,13 +2,14 @@
 """
 RSS Morning Digest - Main Orchestrator
 
-Fetches RSS feeds, summarizes with Claude, ranks by relevance,
+Fetches RSS feeds, summarizes with AI (Claude or Gemini), ranks by relevance,
 and posts a three-tier digest to Discord.
 
 Usage:
-    python src/digest.py              # Normal run
-    python src/digest.py --dry-run    # Fetch & rank, but don't post
-    python src/digest.py --debug      # Verbose logging
+    python src/digest.py                    # Normal run
+    python src/digest.py --dry-run          # Fetch & rank, but don't post
+    python src/digest.py --debug            # Verbose logging
+    python src/digest.py --limit 5          # Test with 5 articles only
 
 Designed to run via cron at 7am daily.
 """
@@ -236,6 +237,7 @@ def run_digest(
     config: dict,
     env_vars: dict,
     dry_run: bool = False,
+    limit: int = None,
 ) -> int:
     """
     Run the full digest pipeline.
@@ -271,8 +273,13 @@ def run_digest(
     
     logger.info(f"Found {len(articles)} articles")
     
+    # Apply limit if specified (for testing)
+    if limit and limit < len(articles):
+        logger.info(f"Limiting to {limit} articles (--limit flag)")
+        articles = articles[:limit]
+    
     # --- STEP 2: SUMMARIZE ---
-    logger.info("🤖 Summarizing articles with Claude...")
+    logger.info("🤖 Summarizing articles with AI...")
     summarizer = ArticleSummarizer(
         api_key=env_vars['api_key'],
         provider=env_vars['ai_provider'],
@@ -360,6 +367,12 @@ def main():
         default='logs/digest.log',
         help="Path to log file (default: logs/digest.log)"
     )
+    parser.add_argument(
+        '--limit',
+        type=int,
+        default=None,
+        help="Limit number of articles to summarize (for testing)"
+    )
     
     args = parser.parse_args()
     
@@ -373,7 +386,7 @@ def main():
         env_vars = get_env_vars()
         
         # Run the pipeline
-        exit_code = run_digest(config, env_vars, dry_run=args.dry_run)
+        exit_code = run_digest(config, env_vars, dry_run=args.dry_run, limit=args.limit)
         sys.exit(exit_code)
         
     except FileNotFoundError as e:
