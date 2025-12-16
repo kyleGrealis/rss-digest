@@ -81,12 +81,20 @@ def load_config(config_path: str = "config.yml") -> dict:
 
 def get_env_vars() -> dict:
     """Load required environment variables."""
-    api_key = os.getenv('ANTHROPIC_API_KEY')
+    # AI Provider selection (default: gemini for free tier)
+    ai_provider = os.getenv('AI_PROVIDER', 'gemini').lower()
+    
+    # Get API keys
+    anthropic_key = os.getenv('ANTHROPIC_API_KEY')
+    gemini_key = os.getenv('GEMINI_API_KEY')
     webhook_url = os.getenv('DISCORD_WEBHOOK_URL')
     
+    # Validate based on provider
     missing = []
-    if not api_key:
+    if ai_provider == 'anthropic' and not anthropic_key:
         missing.append('ANTHROPIC_API_KEY')
+    elif ai_provider == 'gemini' and not gemini_key:
+        missing.append('GEMINI_API_KEY')
     if not webhook_url:
         missing.append('DISCORD_WEBHOOK_URL')
     
@@ -97,7 +105,8 @@ def get_env_vars() -> dict:
         )
     
     return {
-        'api_key': api_key,
+        'ai_provider': ai_provider,
+        'api_key': anthropic_key if ai_provider == 'anthropic' else gemini_key,
         'webhook_url': webhook_url,
     }
 
@@ -248,6 +257,7 @@ def run_digest(
         return 1
     
     logger.info(f"Starting digest run with {len(feeds)} feeds")
+    logger.info(f"AI Provider: {env_vars['ai_provider']}")
     logger.info(f"Settings: max_age={max_age_hours}h, top={top_articles}, min_score={min_score}")
     
     # --- STEP 1: FETCH ---
@@ -263,7 +273,10 @@ def run_digest(
     
     # --- STEP 2: SUMMARIZE ---
     logger.info("🤖 Summarizing articles with Claude...")
-    summarizer = ArticleSummarizer(api_key=env_vars['api_key'])
+    summarizer = ArticleSummarizer(
+        api_key=env_vars['api_key'],
+        provider=env_vars['ai_provider'],
+    )
     summarized = summarizer.summarize_batch(articles)
     
     logger.info(f"Summarized {len(summarized)} articles")
