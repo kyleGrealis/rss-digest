@@ -193,10 +193,10 @@ This project follows the **"boring technology" principle**:
 - [x] RSS feed fetching
 - [x] Claude AI summarization
 - [x] Discord webhook posting
-- [ ] Article ranking by interests
-- [ ] Main orchestrator script
-- [ ] Cron automation
-- [ ] Multi-tier Discord formatting
+- [x] Article ranking by interests
+- [x] Main orchestrator script
+- [x] Cron automation
+- [x] Multi-tier Discord formatting
 - [ ] Optional: MCP wrapper for interactive queries
 
 ## 🤝 Contributing

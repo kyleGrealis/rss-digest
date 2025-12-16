@@ -7,6 +7,7 @@ Creates readable messages with emojis and formatting.
 
 import requests
 import logging
+import time
 from typing import List, Dict
 from datetime import datetime
 
@@ -24,7 +25,114 @@ class DiscordPoster:
             webhook_url: Discord webhook URL
         """
         self.webhook_url = webhook_url
-    
+
+    def post_three_tier_digest(
+        self,
+        articles: List[Dict],
+        title: str,
+    ) -> bool:
+        """
+        Post articles in three tiers:
+        - Tier 1 (Top 5): Individual messages with full summaries
+        - Tier 2 (Next 5): Single message with summaries
+        - Tier 3 (Next 10): Single message with headlines only
+        
+        Returns True if all posts succeeded.
+        """
+        # Split into tiers
+        tier1 = articles[:5]      # Top 5: individual messages
+        tier2 = articles[5:10]    # Next 5: grouped with summaries
+        tier3 = articles[10:20]   # Next 10: headlines only
+        
+        logger.info(f"Posting digest: {len(tier1)} top, {len(tier2)} mid, {len(tier3)} quick")
+        
+        # --- HEADER ---
+        timestamp = datetime.now().strftime("%A, %B %d, %Y at %I:%M %p")
+        header = (
+            f"**{title}**\n"
+            f"*{timestamp}*\n"
+            f"*Found {len(articles)} relevant articles*\n"
+            f"{'─' * 40}"
+        )
+        
+        resp = requests.post(self.webhook_url, json={"content": header})
+        if resp.status_code != 204:
+            logger.error(f"Failed to post header: {resp.status_code}")
+            return False
+        time.sleep(0.5)  # Rate limit buffer
+        
+        # --- TIER 1: Individual messages ---
+        if tier1:
+            tier1_header = "**🔥 TOP ARTICLES**"
+            requests.post(self.webhook_url, json={"content": tier1_header})
+            time.sleep(0.3)
+            
+            for i, article in enumerate(tier1, 1):
+                score = article.get('relevance_score', 0)
+                msg = (
+                    f"**{i}. {article['title']}**\n"
+                    f"*{article['source']}* • Score: {score}\n"
+                    f"{article.get('ai_summary', '')}\n"
+                    f"🔗 {article['link']}"
+                )
+                resp = requests.post(self.webhook_url, json={"content": msg})
+                if resp.status_code != 204:
+                    logger.error(f"Failed to post tier 1 article {i}")
+                    return False
+                time.sleep(0.5)
+        
+        # --- TIER 2: Grouped with summaries ---
+        if tier2:
+            tier2_msg = "**📰 MORE GOOD READS**\n\n"
+            for i, article in enumerate(tier2, 6):
+                score = article.get('relevance_score', 0)
+                tier2_msg += (
+                    f"**{i}. {article['title']}**\n"
+                    f"*{article['source']}* • Score: {score}\n"
+                    f"{article.get('ai_summary', '')}\n"
+                    f"🔗 {article['link']}\n\n"
+                )
+            
+            # Discord 2000 char limit - split if needed
+            if len(tier2_msg) > 1900:
+                # Post in chunks
+                chunks = [tier2_msg[i:i+1900] for i in range(0, len(tier2_msg), 1900)]
+                for chunk in chunks:
+                    resp = requests.post(self.webhook_url, json={"content": chunk})
+                    if resp.status_code != 204:
+                        logger.error("Failed to post tier 2 chunk")
+                        return False
+                    time.sleep(0.5)
+            else:
+                resp = requests.post(self.webhook_url, json={"content": tier2_msg})
+                if resp.status_code != 204:
+                    logger.error("Failed to post tier 2")
+                    return False
+            time.sleep(0.5)
+        
+        # --- TIER 3: Headlines only ---
+        if tier3:
+            tier3_msg = "**📋 QUICK HEADLINES**\n\n"
+            for i, article in enumerate(tier3, 11):
+                tier3_msg += f"{i}. [{article['source']}] {article['title']}\n{article['link']}\n\n"
+            
+            if len(tier3_msg) > 1900:
+                chunks = [tier3_msg[i:i+1900] for i in range(0, len(tier3_msg), 1900)]
+                for chunk in chunks:
+                    resp = requests.post(self.webhook_url, json={"content": chunk})
+                    if resp.status_code != 204:
+                        logger.error("Failed to post tier 3 chunk")
+                        return False
+                    time.sleep(0.5)
+            else:
+                resp = requests.post(self.webhook_url, json={"content": tier3_msg})
+                if resp.status_code != 204:
+                    logger.error("Failed to post tier 3")
+                    return False
+        
+        logger.info("✓ Successfully posted three-tier digest")
+        return True
+
     def post_digest(self, articles: List[Dict], title: str = "📰 Morning RSS Digest") -> bool:
         """
         Post a digest of articles to Discord.
