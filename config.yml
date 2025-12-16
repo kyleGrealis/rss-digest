@@ -104,6 +104,57 @@ digest:
 
 interests:
   high_priority:
+    
+    # R & Data Science
+    - "tidyverse"
+    - "tidymodels"
+    - "ggplot2"
+    - "dplyr"
+    - "shiny"
+    - "rstats"
+    - "r programming"
+    - "posit"
+    - "rstudio"
+    - "quarto"
+    - "data visualization"
+    - "dataviz"
+    - "nodejs"
+    - "node.js"
+    
+    # Linux & COSMIC
+    - "cosmic de"
+    - "cosmic desktop"
+    - "system76"
+    - "linux desktop"
+    - "arch linux"
+    - "arch"
+    
+    # Kettlebells & Fitness
+    - "kettlebell"
+    - "kettlebells"
+    - "kb snatch"
+    - "emom"
+    - "hiit"
+    - "longevity"
+    - "healthspan"
+    - "zone 2"
+    - "vo2max"
+    - "vo2 max"
+    
+    # Privacy & Open Source
+    - "open source"
+    - "proton"
+    - "protonmail"
+    - "proton vpn"
+    - "privacy"
+    - "tailscale"
+    
+    # Sports Analytics
+    - "sports analytics"
+    - "sports data"
+
+  medium_priority:
+
     # Running & Track
     - "running"
     - "5k"
@@ -120,78 +171,9 @@ interests:
     - "ncaa track"
     - "usatf"
     - "world athletics"
-    - "marathon"
     - "cross country"
     - "tempo run"
     - "interval training"
-    
-    # R & Data Science
-    - "tidyverse"
-    - "tidymodels"
-    - "ggplot2"
-    - "dplyr"
-    - "shiny"
-    - "rstats"
-    - "r programming"
-    - "posit"
-    - "rstudio"
-    - "quarto"
-    - "data visualization"
-    - "dataviz"
-    
-    # Linux & COSMIC
-    - "cosmic de"
-    - "cosmic desktop"
-    - "system76"
-    - "pop!_os"
-    - "pop os"
-    - "linux desktop"
-    - "arch linux"
-    
-    # Kettlebells & Fitness
-    - "kettlebell"
-    - "kettlebells"
-    - "kb snatch"
-    - "emom"
-    - "hiit"
-    - "longevity"
-    - "healthspan"
-    - "zone 2"
-    - "vo2max"
-    - "vo2 max"
-    
-    # NCAA & Miami
-    - "ncaa football"
-    - "college football"
-    - "miami hurricanes"
-    - "hurricanes football"
-    - "hurricanes basketball"
-    
-    # NASCAR
-    - "nascar"
-    - "cup series"
-    - "xfinity series"
-    
-    # Privacy & Open Source
-    - "open source"
-    - "proton"
-    - "protonmail"
-    - "proton vpn"
-    - "privacy"
-    - "eff"
-    - "tailscale"
-    
-    # Sports Analytics
-    - "sports analytics"
-    - "sports data"
-
-  medium_priority:
-    # F1 (high-level only)
-    - "formula 1"
-    - "f1"
-    - "norris"
-    - "mclaren"
-    - "hamilton"
     
     # Running Gear
     - "hoka"
@@ -206,8 +188,6 @@ interests:
     
     # Politics
     - "progressive"
-    - "medicare for all"
-    - "european politics"
     - "social democracy"
     
     # Diabetes (work-adjacent but interesting)
@@ -243,6 +223,27 @@ interests:
     - "masters running"
 
   low_priority:
+    # Most of this is in Instagram or Reddit. Don't need overkill!
+  
+    # NCAA & Miami
+    - "ncaa football"
+    - "college football"
+    - "miami hurricanes"
+    - "hurricanes football"
+    - "hurricanes basketball"
+    
+    # NASCAR
+    - "nascar"
+    - "cup series"
+    - "xfinity series"
+
+    # F1 (high-level only)
+    - "formula 1"
+    - "f1"
+    - "norris"
+    - "mclaren"
+    - "hamilton"
+  
     # Sysadmin
     - "sysadmin"
     - "devops"
@@ -281,10 +282,13 @@ interests:
     - "prompt engineering secrets"
     
     # Tech not using
-    - "nodejs"
-    - "node.js"
+    - "posit workbench"
+    - "fedora"
+    - "red hat"
     - "react native"
     - "angular"
+    - "steam"
+    - "valve steam"
     
     # Other exclusions
     - "meal prep"
@@ -292,9 +296,6 @@ interests:
     - "weekly meal"
     - "raspberry pi project"
     - "pi project ideas"
-    - "f1 drama"
-    - "horner"
-    - "grid penalty drama"
     - "union strike"
     - "labor union"
     
