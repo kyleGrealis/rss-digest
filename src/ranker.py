@@ -152,15 +152,20 @@ class ArticleRanker:
         articles: List[Dict],
         top_n: int = 20,
         min_score: int = 1,
+        protected_count: int = 0,
+        prerank_bonus_max: int = 0,
     ) -> List[Dict]:
         """
         Rank articles by relevance score.
-        
+
         Args:
             articles: List of article dicts
             top_n: Maximum number of articles to return
             min_score: Minimum score to include (filters out irrelevant)
-            
+            protected_count: Top N pre-ranked articles guaranteed inclusion
+                             (requires 'pre_rank_position' field on articles)
+            prerank_bonus_max: Bonus points for #1 pre-rank (decays to 0)
+
         Returns:
             List of articles sorted by score (highest first),
             with 'relevance_score' field added to each
@@ -168,32 +173,60 @@ class ArticleRanker:
         logger.info(f"Ranking {len(articles)} articles...")
 
         scored_articles = []
+        protected_articles = []
         excluded_count = 0
         low_score_count = 0
 
         for article in articles:
             score = self.score_article(article)
-            
+            pre_rank = article.get('pre_rank_position')
+
+            # Exclusions ALWAYS override protection
             if score == 0:
                 excluded_count += 1
-                continue
-            
-            if score < min_score:
-                low_score_count += 1
+                if pre_rank and pre_rank <= protected_count:
+                    logger.info(
+                        f"⚠️ Protected #{pre_rank} excluded (found exclusion keyword): "
+                        f"{article.get('title', 'Unknown')[:50]}"
+                    )
                 continue
 
-            article['relevance_score'] = score
-            scored_articles.append(article)
+            # Apply pre-rank bonus if article has pre_rank_position
+            if pre_rank and prerank_bonus_max > 0:
+                # #1 gets full bonus, decays linearly
+                bonus = max(0, prerank_bonus_max - pre_rank + 1)
+                score += bonus
+                if bonus > 0:
+                    logger.debug(f"Pre-rank #{pre_rank} bonus: +{bonus} pts")
+
+            # Check if this article is protected
+            is_protected = pre_rank and pre_rank <= protected_count
+
+            if is_protected:
+                # Protected articles get minimum score of 100 to guarantee inclusion
+                score = max(score, 100)
+                article['relevance_score'] = score
+                article['protected'] = True
+                protected_articles.append(article)
+            elif score >= min_score:
+                article['relevance_score'] = score
+                scored_articles.append(article)
+            else:
+                low_score_count += 1
+
+        # Combine: protected first, then regular scored articles
+        all_scored = protected_articles + scored_articles
 
         # Sort by score (highest first)
-        scored_articles.sort(key=lambda x: x['relevance_score'], reverse=True)
+        all_scored.sort(key=lambda x: x['relevance_score'], reverse=True)
 
         # Take top N
-        result = scored_articles[:top_n]
+        result = all_scored[:top_n]
 
         logger.info(
             f"Ranking complete: {len(result)} articles "
-            f"(excluded: {excluded_count}, low score: {low_score_count})"
+            f"(protected: {len(protected_articles)}, excluded: {excluded_count}, "
+            f"low score: {low_score_count})"
         )
 
         return result

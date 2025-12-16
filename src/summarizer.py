@@ -95,8 +95,7 @@ Keep it concise and informative. No fluff."""
         error_count = 0
         
         for i, article in enumerate(articles, 1):
-            logger.info(f"Progress: {i}/{total}")
-            logger.info(f"Summarizing: {article['title'][:50]}...")
+            logger.info(f"[{i}/{total}] {article.get('source', 'Unknown')}: {article['title'][:55]}...")
             
             try:
                 ai_summary = self.summarize(
