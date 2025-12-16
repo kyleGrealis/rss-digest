@@ -1,0 +1,300 @@
+# RSS Morning Digest Configuration
+
+# ============================================================
+# MODEL CONFIGURATION
+# ============================================================
+api:
+  provider: "anthropic"  # "anthropic" or "gemini"
+  model: null            # Optional: "claude-sonnet-4-20250514" or "gemini-2.5-flash"
+
+
+# ============================================================
+# RSS FEEDS
+# ============================================================
+feeds:
+  # --- Running & Track ---
+  - url: "https://athleticsweekly.com/feed/"
+    name: "Athletics Weekly"
+  - url: "https://www.letsrun.com/feed/"
+    name: "LetsRun"
+  - url: "https://www.runnersworld.com/rss/all.xml/"
+    name: "Runner's World"
+
+  # --- R & Data Science ---
+  - url: "https://www.r-bloggers.com/feed/"
+    name: "R-Bloggers"
+  - url: "https://rweekly.org/atom.xml"
+    name: "R Weekly"
+  - url: "https://posit.co/feed/"
+    name: "Posit Blog"
+  - url: "https://www.tidyverse.org/blog/index.xml"
+    name: "Tidyverse Blog"
+  - url: "https://emilyriederer.com/index.xml"
+    name: "Emily Riederer"
+
+  # --- Linux & COSMIC ---
+  - url: "https://blog.system76.com/rss"
+    name: "System76 Blog"
+  - url: "https://www.omgubuntu.co.uk/feed"
+    name: "OMG! Ubuntu"
+  - url: "https://www.phoronix.com/rss.php"
+    name: "Phoronix"
+  - url: "https://feeds.fireside.fm/linuxunplugged/rss"
+    name: "Linux Unplugged"
+
+  # --- Privacy & Security ---
+  - url: "https://www.eff.org/rss/updates.xml"
+    name: "EFF Deeplinks"
+  - url: "https://proton.me/blog/feed"
+    name: "Proton Blog"
+
+  # --- Open Source ---
+  - url: "https://github.blog/feed/"
+    name: "GitHub Blog"
+  - url: "https://changelog.com/news/feed"
+    name: "Changelog News"
+
+  # --- Motorsports ---
+  - url: "https://www.motorsport.com/rss/f1/news/"
+    name: "Motorsport.com F1"
+  - url: "https://racer.com/feed/"
+    name: "Racer.com"
+
+  # --- Fitness & Longevity ---
+  - url: "https://peterattiamd.com/feed/"
+    name: "Peter Attia"
+  - url: "https://www.strongerbyscience.com/feed/"
+    name: "Stronger By Science"
+
+  # --- Politics ---
+  - url: "https://www.theguardian.com/us-news/rss"
+    name: "The Guardian US"
+  - url: "https://theintercept.com/feed/?rss"
+    name: "The Intercept"
+  - url: "https://jacobin.com/feed/"
+    name: "Jacobin"
+
+  # --- Miami Sports ---
+  - url: "https://miamihurricanes.com/rss"
+    name: "Miami Hurricanes"
+
+  # --- Dataviz & Books ---
+  - url: "https://flowingdata.com/feed/"
+    name: "Flowing Data"
+  - url: "https://bookriot.com/feed/"
+    name: "Book Riot"
+
+
+# ============================================================
+# DIGEST SETTINGS
+# ============================================================
+digest:
+  max_age_hours: 24          # Only articles from last N hours
+  top_articles: 20           # Total articles to include in digest
+  min_score: 1               # Minimum relevance score to include
+  title: "📰 Morning RSS Digest"
+
+
+# ============================================================
+# INTEREST PROFILE (for ranking)
+# ============================================================
+# Keywords are matched against title + summary + AI summary
+# Scoring: high=10pts, medium=5pts, low=2pts per match
+# Exclusions: any match = article dropped (score 0)
+
+interests:
+  high_priority:
+    # Running & Track
+    - "running"
+    - "5k"
+    - "10k"
+    - "track and field"
+    - "track & field"
+    - "sprints"
+    - "sprint"
+    - "middle distance"
+    - "800m"
+    - "1500m"
+    - "400m"
+    - "diamond league"
+    - "ncaa track"
+    - "usatf"
+    - "world athletics"
+    - "marathon"
+    - "cross country"
+    - "tempo run"
+    - "interval training"
+    
+    # R & Data Science
+    - "tidyverse"
+    - "tidymodels"
+    - "ggplot2"
+    - "dplyr"
+    - "shiny"
+    - "rstats"
+    - "r programming"
+    - "posit"
+    - "rstudio"
+    - "quarto"
+    - "data visualization"
+    - "dataviz"
+    
+    # Linux & COSMIC
+    - "cosmic de"
+    - "cosmic desktop"
+    - "system76"
+    - "pop!_os"
+    - "pop os"
+    - "linux desktop"
+    - "arch linux"
+    
+    # Kettlebells & Fitness
+    - "kettlebell"
+    - "kettlebells"
+    - "kb snatch"
+    - "emom"
+    - "hiit"
+    - "longevity"
+    - "healthspan"
+    - "zone 2"
+    - "vo2max"
+    - "vo2 max"
+    
+    # NCAA & Miami
+    - "ncaa football"
+    - "college football"
+    - "miami hurricanes"
+    - "hurricanes football"
+    - "hurricanes basketball"
+    
+    # NASCAR
+    - "nascar"
+    - "cup series"
+    - "xfinity series"
+    
+    # Privacy & Open Source
+    - "open source"
+    - "proton"
+    - "protonmail"
+    - "proton vpn"
+    - "privacy"
+    - "eff"
+    - "tailscale"
+    
+    # Sports Analytics
+    - "sports analytics"
+    - "sports data"
+
+  medium_priority:
+    # F1 (high-level only)
+    - "formula 1"
+    - "f1"
+    - "norris"
+    - "mclaren"
+    - "hamilton"
+    
+    # Running Gear
+    - "hoka"
+    - "garmin"
+    - "running shoes"
+    - "runners world"
+    
+    # Nutrition
+    - "nutrition science"
+    - "protein"
+    - "pescatarian"
+    
+    # Politics
+    - "progressive"
+    - "medicare for all"
+    - "european politics"
+    - "social democracy"
+    
+    # Diabetes (work-adjacent but interesting)
+    - "diabetes"
+    - "type 2 diabetes"
+    - "insulin resistance"
+    
+    # Linux General
+    - "linux"
+    - "ubuntu"
+    - "fedora"
+    - "kde"
+    - "gnome"
+    - "terminal"
+    - "cli"
+    
+    # Audiobooks
+    - "audiobook"
+    - "audiobooks"
+    
+    # Dataviz
+    - "d3.js"
+    - "observable"
+    - "data journalism"
+    
+    # Miami Marlins (minimal)
+    - "miami marlins"
+    - "marlins"
+    
+    # Masters Running
+    - "masters athletics"
+    - "over 40"
+    - "masters running"
+
+  low_priority:
+    # Sysadmin
+    - "sysadmin"
+    - "devops"
+    - "server"
+    
+    # Climate (occasional)
+    - "climate policy"
+    - "renewable energy"
+    
+    # General tech
+    - "github"
+    - "git"
+
+  exclusions:
+    # Work mode - avoid in morning digest
+    - "genomics"
+    - "genomic"
+    - "bioinformatics"
+    - "gene expression"
+    - "epidemiology"
+    - "epidemiological"
+    - "hiv"
+    - "opioid"
+    - "genome-wide"
+    - "gwas"
+    - "snp"
+    - "allele"
+    
+    # Sports to skip
+    - "nfl"
+    - "nba"
+    
+    # AI hype
+    - "chatgpt is amazing"
+    - "ai will replace"
+    - "prompt engineering secrets"
+    
+    # Tech not using
+    - "nodejs"
+    - "node.js"
+    - "react native"
+    - "angular"
+    
+    # Other exclusions
+    - "meal prep"
+    - "meal planning"
+    - "weekly meal"
+    - "raspberry pi project"
+    - "pi project ideas"
+    - "f1 drama"
+    - "horner"
+    - "grid penalty drama"
+    - "union strike"
+    - "labor union"
+    
