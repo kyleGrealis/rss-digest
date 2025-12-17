@@ -117,33 +117,34 @@ digest:
 interests:
   tiers:
     - name: "Critical"
-      score: 25
+      score: 3
       keywords:
         - "android 16"
-        - "android beta"
-        - "cosmic de"
         - "cosmic desktop"
         - "system76"
         - "arch linux"
-        - "ars technica"
+        - "pixel 10"
+        - "tidymodels"
+        - "quarto"
+        - "tailscale"
 
-    - name: "High"
-      score: 15
+    - name: "Standard"
+      score: 1
       keywords:
+        - "android beta"
+        - "cosmic de"
+        - "ars technica"
         # Pixel
         - "google pixel"
-        - "pixel 10"
         - "feature drop"
         # R & Data Science
         - "tidyverse"
-        - "tidymodels"
         - "ggplot2"
         - "dplyr"
         - "shiny"
         - "rstats"
         - "r programming"
         - "posit"
-        - "quarto"
         - "data visualization"
         - "dataviz"
         # Kettlebells & Fitness
@@ -152,10 +153,6 @@ interests:
         - "healthspan"
         - "zone 2"
         - "vo2max"
-
-    - name: "Medium"
-      score: 8
-      keywords:
         # Running (downplayed)
         - "running"
         - "track and field"
@@ -173,14 +170,9 @@ interests:
         - "open source"
         - "proton"
         - "privacy"
-        - "tailscale"
         # Other
         - "sports analytics"
         - "nodejs"
-
-    - name: "Low"
-      score: 3
-      keywords:
         - "5k"
         - "10k"
         - "tempo run"
@@ -194,10 +186,6 @@ interests:
         - "d3.js"
         - "data journalism"
         - "miami hurricanes"
-
-    - name: "Very Low"
-      score: 1
-      keywords:
         - "sysadmin"
         - "devops"
         - "server"

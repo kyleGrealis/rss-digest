@@ -105,14 +105,14 @@ class DiscordPoster:
             ]
             
             top_10_payload = {
-                "content": "**🔥 Top 10 Articles (with images)**",
+                "content": "**🔥 Top 10 Articles**",
                 "embeds": top_10_embeds
             }
             resp = requests.post(self.webhook_url, json=top_10_payload)
             if resp.status_code != 204:
                 logger.error(f"Failed to post top 10 articles: {resp.status_code} - {resp.text}")
                 return False
-            time.sleep(0.5) # Rate limit buffer
+            time.sleep(2) # Add a 2-second delay before the next post
 
         # --- Send Next 10 Articles (without images) ---
         if next_10:
@@ -122,7 +122,7 @@ class DiscordPoster:
             ]
             
             next_10_payload = {
-                "content": "**📰 More Good Reads (11-20)**",
+                "content": "**📰 More Good Reads**",
                 "embeds": next_10_embeds
             }
             resp = requests.post(self.webhook_url, json=next_10_payload)
