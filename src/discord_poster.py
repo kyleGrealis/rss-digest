@@ -34,10 +34,14 @@ class DiscordPoster:
         """
         Create a single Discord embed dictionary for an article.
         """
+        summary = article.get('ai_summary', article.get('summary', 'No summary available.'))
+        if len(summary) > 512:
+            summary = summary[:509] + "..."
+
         embed = {
             "title": f"{rank}. {article['title']}",
             "url": article['link'],
-            "description": article.get('ai_summary', article.get('summary', 'No summary available.')),
+            "description": summary,
             "color": self.embed_color,
             "fields": [
                 {
