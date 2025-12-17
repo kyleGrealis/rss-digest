@@ -134,7 +134,7 @@ class DiscordPoster:
         logger.info("✓ Successfully posted rich digest.")
         return True
 
-    def test_webhook(self) -> bool:
+    def test_connection(self) -> bool:
         """
         Test if the webhook URL works.
         """
