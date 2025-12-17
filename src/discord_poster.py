@@ -35,8 +35,22 @@ class DiscordPoster:
         Create a single Discord embed dictionary for an article.
         """
         summary = article.get('ai_summary', article.get('summary', 'No summary available.'))
-        if len(summary) > 512:
-            summary = summary[:509] + "..."
+
+        # Rank-based summary length
+        if rank <= 10:
+            # Top 10: Full summary (up to 512 chars)
+            if len(summary) > 512:
+                summary = summary[:509] + "..."
+        else:
+            # Ranks 11-20: One sentence (up to 150 chars)
+            # Try to find first sentence boundary
+            first_period = summary.find('.', 0, 150)
+            if first_period != -1 and first_period < 150:
+                summary = summary[:first_period + 1]
+            else:
+                # No period found or too long - hard truncate
+                if len(summary) > 150:
+                    summary = summary[:147] + "..."
 
         embed = {
             "title": f"{rank}. {article['title']}",
@@ -101,10 +115,10 @@ class DiscordPoster:
             return False
         time.sleep(0.5) # Rate limit buffer
 
-        # --- Send Top 10 Articles (with images if enabled) ---
+        # --- Send Top 10 Articles (ranks 1-5 with images, 6-10 without) ---
         if top_10:
             top_10_embeds = [
-                self._create_embed(article, i + 1, with_image=True)
+                self._create_embed(article, i + 1, with_image=(i < 5))
                 for i, article in enumerate(top_10)
             ]
             
