@@ -205,102 +205,53 @@ interests:
         - "git"
         - "miami marlins"
 
-    exclusions:
+  exclusions:
+    # Work mode - avoid in morning digest
+    - "genomics"
+    - "genomic"
+    - "bioinformatics"
+    - "gene expression"
+    - "epidemiology"
+    - "epidemiological"
+    - "hiv"
+    - "opioid"
+    - "gwas"
+    # AI hype
+    - "chatgpt is amazing"
+    - "ai will replace"
+    # Tech not using
+    - "posit workbench"
+    - "react native"
+    - "angular"
+    - "steam"
+    # Other
+    - "meal prep"
+    - "union strike"
 
-      # Work mode - avoid in morning digest
+  penalties:
+    # General low-value or clickbait-style phrases
+    - score: -5
+      keywords:
+        - "what you need to know"
+        - "everything you need to know"
+        - "is set to"
+        - "could be"
+        - "might be"
 
-      - "genomics"
-
-      - "genomic"
-
-      - "bioinformatics"
-
-      - "gene expression"
-
-      - "epidemiology"
-
-      - "epidemiological"
-
-      - "hiv"
-
-      - "opioid"
-
-      - "gwas"
-
-      # AI hype
-
-      - "chatgpt is amazing"
-
-      - "ai will replace"
-
-      # Tech not using
-
-      - "posit workbench"
-
-      - "react native"
-
-      - "angular"
-
-      - "steam"
-
-      # Other
-
-      - "meal prep"
-
-      - "union strike"
-
-  
-
-    penalties:
-
-      # General low-value or clickbait-style phrases
-
-      - score: -5
-
-        keywords:
-
-          - "what you need to know"
-
-          - "everything you need to know"
-
-          - "is set to"
-
-          - "could be"
-
-          - "might be"
-
-  
-
-      # Tech topics explicitly removed or down-played from your config
-
-      - score: -8
-
-        keywords:
-
-          - "pop os"
-
-          - "pop!_os"
-
-          - "red hat"
-
-          - "angular"
-
-          - "react native"
-
-      
-
-      # Generic sports/gaming terms that might bypass exclusions
-
-      - score: -3
-
-        keywords:
-
-          - "esports"
-
-          - "game review"
-
-          - "season preview"
-
-          - "steam" # Already in exclusions, but a penalty can also help
-
+    # Tech topics explicitly removed or down-played from your config
+    - score: -8
+      keywords:
+        - "pop os"
+        - "pop!_os"
+        - "red hat"
+        - "angular"
+        - "react native"
+    
+    # Generic sports/gaming terms that might bypass exclusions
+    - score: -3
+      keywords:
+        - "esports"
+        - "game review"
+        - "season preview"
+        - "steam" # Already in exclusions, but a penalty can also help
   
