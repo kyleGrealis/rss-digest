@@ -1,6 +1,22 @@
 ## ROADMAP AND IDEAS
 
-### 1. Interactive Feedback Loop with Discord Reactions
+### Recently Implemented (December 2025)
+
+*   **Refactored Discord Posting UX**: Implemented a robust 4-post tiered system for Discord delivery. This ensures a clean, hierarchical presentation of articles (Must Reads, Good Reads, Also Noteworthy) while preventing Discord API size limits.
+*   **Two-Tier Interest Profile**: Restructured `config.yml` interest keywords into 'Critical' (score 3) and 'Standard' (score 1) tiers, allowing for more precise control over highly relevant topics without over-biasing the digest.
+*   **Structured Logging for Ranking Analytics**: Implemented `src/stats_logger.py` to record detailed data (e.g., article rank, scores, keywords matched) for every article making it into the final digest. This provides a foundational dataset for future analysis and continuous improvement of the ranking algorithm.
+*   **Fixed `run-digest.sh` Argument Passing**: Ensured command-line arguments are correctly passed from the shell script to `src/digest.py`.
+
+### Future Ideas
+
+### 1. Enhanced Ranking Algorithms
+
+Building on the structured logging, we can iterate on the ranking algorithm to improve relevance and diversity.
+
+*   **Feed Diversity Score/Boost**: Implement logic to give a temporary boost to articles from feeds that haven't appeared in the digest recently. This would help combat dominance by high-volume feeds and encourage a more eclectic mix of sources. This can be informed by analyzing `stats.csv` data.
+*   **Dynamic Candidate Buffer Analysis**: Utilize the structured logs (`stats.csv`) to determine the optimal size for `candidate_buffer`. By analyzing how often articles ranked from, say, 25-50 in the pre-rank make it into the final digest, we can make data-driven decisions on whether to increase or decrease the number of articles sent for AI summarization. This balances AI cost with the chance of finding more relevant articles.
+
+### 2. Interactive Feedback Loop with Discord Reactions (Original Idea)
 
 **The Idea:** Implement a system where users can provide direct feedback on articles posted to Discord using reactions (e.g., 👍 for "more like this," 👎 for "less of this"). This feedback would then be used to dynamically adjust keyword weights in the ranking algorithm.
 
