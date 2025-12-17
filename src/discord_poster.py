@@ -1,14 +1,13 @@
 """
 Discord Poster
 
-Formats article digests and posts them to Discord via webhook.
-Creates readable messages with emojis and formatting.
+Formats article digests and posts them to Discord via webhook using rich embeds.
 """
 
 import requests
 import logging
 import time
-from typing import List, Dict
+from typing import List, Dict, Any
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -16,284 +15,128 @@ logger = logging.getLogger(__name__)
 
 class DiscordPoster:
     """Posts article digests to Discord via webhook."""
-    
-    def __init__(self, webhook_url: str):
+
+    def __init__(self, webhook_url: str, config: Dict):
         """
         Initialize the Discord poster.
-        
+
         Args:
-            webhook_url: Discord webhook URL
+            webhook_url: Discord webhook URL.
+            config: The full configuration dictionary, used for embed_images setting.
         """
         self.webhook_url = webhook_url
+        self.config = config
+        self.embed_images_enabled = self.config.get('digest', {}).get('embed_images', False)
+        # Define a default color for embeds (e.g., a neutral blue)
+        self.embed_color = 0x3498DB # Discord color code (decimal)
 
-    def post_three_tier_digest(
-        self,
-        articles: List[Dict],
-        title: str,
-    ) -> bool:
+    def _create_embed(self, article: Dict, rank: int, with_image: bool = False) -> Dict:
         """
-        Post articles in three tiers:
-        - Tier 1 (Top 5): Individual messages with full summaries
-        - Tier 2 (Next 5): Single message with summaries
-        - Tier 3 (Next 10): Single message with headlines only
-        
-        Returns True if all posts succeeded.
+        Create a single Discord embed dictionary for an article.
         """
-        # Split into tiers
-        tier1 = articles[:5]      # Top 5: individual messages
-        tier2 = articles[5:10]    # Next 5: grouped with summaries
-        tier3 = articles[10:20]   # Next 10: headlines only
+        embed = {
+            "title": f"{rank}. {article['title']}",
+            "url": article['link'],
+            "description": article.get('ai_summary', article.get('summary', 'No summary available.')),
+            "color": self.embed_color,
+            "fields": [
+                {
+                    "name": "Source",
+                    "value": article['source'],
+                    "inline": True
+                },
+                {
+                    "name": "Score",
+                    "value": str(article.get('relevance_score', 'N/A')),
+                    "inline": True
+                }
+            ],
+            "footer": {
+                "text": f"Published: {article['published'].strftime('%Y-%m-%d %H:%M')}"
+                if article.get('published') else "Published: N/A"
+            }
+        }
+
+        if with_image and self.embed_images_enabled and article.get('image_url'):
+            embed["image"] = {"url": article['image_url']}
+
+        return embed
+
+    def post_digest(self, articles: List[Dict], digest_title: str) -> bool:
+        """
+        Post a digest of articles to Discord using rich embeds.
         
-        logger.info(f"Posting digest: {len(tier1)} top, {len(tier2)} mid, {len(tier3)} quick")
+        The top 10 articles are sent in one message (with images if enabled).
+        The next 10 articles (11-20) are sent in a second message (without images).
+
+        Args:
+            articles: List of article dictionaries.
+            digest_title: The main title for the digest.
+            
+        Returns:
+            True if successful, False otherwise.
+        """
+        logger.info(f"Posting digest with {len(articles)} articles to Discord via embeds.")
         
-        # --- HEADER ---
+        top_10 = articles[:10]
+        next_10 = articles[10:20]
+        
+        # --- Send Header Message ---
         timestamp = datetime.now().strftime("%A, %B %d, %Y at %I:%M %p")
-        header = (
-            f"**{title}**\n"
-            f"*{timestamp}*\n"
-            f"*Found {len(articles)} relevant articles*\n"
-            f"{'─' * 40}"
-        )
-        
-        resp = requests.post(self.webhook_url, json={"content": header})
+        header_content = {
+            "content": (
+                f"**{digest_title}**\n"
+                f"*{timestamp}*\n"
+                f"*Found {len(articles)} relevant articles*\n"
+                f"{'-' * 40}"
+            )
+        }
+        resp = requests.post(self.webhook_url, json=header_content)
         if resp.status_code != 204:
-            logger.error(f"Failed to post header: {resp.status_code}")
+            logger.error(f"Failed to post digest header: {resp.status_code} - {resp.text}")
             return False
-        time.sleep(0.5)  # Rate limit buffer
-        
-        # --- TIER 1: Individual messages ---
-        if tier1:
-            tier1_header = "**🔥 TOP ARTICLES**"
-            requests.post(self.webhook_url, json={"content": tier1_header})
-            time.sleep(0.3)
+        time.sleep(0.5) # Rate limit buffer
+
+        # --- Send Top 10 Articles (with images if enabled) ---
+        if top_10:
+            top_10_embeds = [
+                self._create_embed(article, i + 1, with_image=True)
+                for i, article in enumerate(top_10)
+            ]
             
-            for i, article in enumerate(tier1, 1):
-                score = article.get('relevance_score', 0)
-                msg = (
-                    f"**{i}. {article['title']}**\n"
-                    f"*{article['source']}* • Score: {score}\n"
-                    f"{article.get('ai_summary', '')}\n"
-                    f"🔗 {article['link']}"
-                )
-                resp = requests.post(self.webhook_url, json={"content": msg})
-                if resp.status_code != 204:
-                    logger.error(f"Failed to post tier 1 article {i}")
-                    return False
-                time.sleep(0.5)
-        
-        # --- TIER 2: Grouped with summaries ---
-        if tier2:
-            tier2_msg = "**📰 MORE GOOD READS**\n\n"
-            for i, article in enumerate(tier2, 6):
-                score = article.get('relevance_score', 0)
-                tier2_msg += (
-                    f"**{i}. {article['title']}**\n"
-                    f"*{article['source']}* • Score: {score}\n"
-                    f"{article.get('ai_summary', '')}\n"
-                    f"🔗 {article['link']}\n\n"
-                )
+            top_10_payload = {
+                "content": "**🔥 Top 10 Articles (with images)**",
+                "embeds": top_10_embeds
+            }
+            resp = requests.post(self.webhook_url, json=top_10_payload)
+            if resp.status_code != 204:
+                logger.error(f"Failed to post top 10 articles: {resp.status_code} - {resp.text}")
+                return False
+            time.sleep(0.5) # Rate limit buffer
+
+        # --- Send Next 10 Articles (without images) ---
+        if next_10:
+            next_10_embeds = [
+                self._create_embed(article, i + 11, with_image=False) # Rank from 11 to 20
+                for i, article in enumerate(next_10)
+            ]
             
-            # Discord 2000 char limit - split if needed
-            if len(tier2_msg) > 1900:
-                # Post in chunks
-                chunks = [tier2_msg[i:i+1900] for i in range(0, len(tier2_msg), 1900)]
-                for chunk in chunks:
-                    resp = requests.post(self.webhook_url, json={"content": chunk})
-                    if resp.status_code != 204:
-                        logger.error("Failed to post tier 2 chunk")
-                        return False
-                    time.sleep(0.5)
-            else:
-                resp = requests.post(self.webhook_url, json={"content": tier2_msg})
-                if resp.status_code != 204:
-                    logger.error("Failed to post tier 2")
-                    return False
-            time.sleep(0.5)
-        
-        # --- TIER 3: Headlines only ---
-        if tier3:
-            tier3_msg = "**📋 QUICK HEADLINES**\n\n"
-            for i, article in enumerate(tier3, 11):
-                tier3_msg += f"{i}. [{article['source']}] {article['title']}\n{article['link']}\n\n"
-            
-            if len(tier3_msg) > 1900:
-                chunks = [tier3_msg[i:i+1900] for i in range(0, len(tier3_msg), 1900)]
-                for chunk in chunks:
-                    resp = requests.post(self.webhook_url, json={"content": chunk})
-                    if resp.status_code != 204:
-                        logger.error("Failed to post tier 3 chunk")
-                        return False
-                    time.sleep(0.5)
-            else:
-                resp = requests.post(self.webhook_url, json={"content": tier3_msg})
-                if resp.status_code != 204:
-                    logger.error("Failed to post tier 3")
-                    return False
-        
-        logger.info("✓ Successfully posted three-tier digest")
+            next_10_payload = {
+                "content": "**📰 More Good Reads (11-20)**",
+                "embeds": next_10_embeds
+            }
+            resp = requests.post(self.webhook_url, json=next_10_payload)
+            if resp.status_code != 204:
+                logger.error(f"Failed to post next 10 articles: {resp.status_code} - {resp.text}")
+                return False
+            time.sleep(0.5) # Rate limit buffer
+
+        logger.info("✓ Successfully posted rich digest.")
         return True
 
-    def post_digest(self, articles: List[Dict], title: str = "📰 Morning RSS Digest") -> bool:
-        """
-        Post a digest of articles to Discord.
-        
-        Args:
-            articles: List of article dicts with 'title', 'ai_summary', 'link', 'source'
-            title: Title for the digest message
-            
-        Returns:
-            True if successful, False otherwise
-        """
-        logger.info(f"Posting digest with {len(articles)} articles to Discord")
-        
-        try:
-            # Build the message
-            message = self._format_digest(articles, title)
-            
-            # Discord has a 2000 character limit per message
-            # If too long, we'll split into multiple messages
-            if len(message) > 2000:
-                logger.warning(f"Message is {len(message)} chars, splitting...")
-                return self._post_long_digest(articles, title)
-            
-            # Post to Discord
-            response = requests.post(
-                self.webhook_url,
-                json={"content": message},
-                headers={"Content-Type": "application/json"}
-            )
-            
-            if response.status_code == 204:  # Discord returns 204 on success
-                logger.info("✓ Successfully posted to Discord")
-                return True
-            else:
-                logger.error(f"Discord returned status {response.status_code}: {response.text}")
-                return False
-                
-        except Exception as e:
-            logger.error(f"Error posting to Discord: {e}")
-            return False
-
-    def post_articles_individually(
-        self, 
-        articles: List[Dict],
-         title: str = "📰 Morning RSS Digest",
-         test_webhook: bool = False
-    ) -> bool:
-        """
-        Post each article as a separate message (embed stays with article).
-        
-        Args:
-            articles: List of article dicts
-            title: Title for the digest
-            
-        Returns:
-            True if all successful, False otherwise
-        """
-        logger.info(f"Posting {len(articles)} articles individually to Discord")
-
-        # Only test webhook if requested
-        if test_webhook:
-            if not self.test_webhook():
-                logger.error("Webhook test failed!")
-                return False
-        
-        # Post header first
-        timestamp = datetime.now().strftime("%A, %B %d, %Y at %I:%M %p")
-        header = f"**{title}**\n*{timestamp}*\n*Found {len(articles)} articles*\n"
-        
-        response = requests.post(self.webhook_url, json={"content": header})
-        if response.status_code != 204:
-            logger.error("Failed to post header")
-            return False
-        
-        # Post each article individually
-        for i, article in enumerate(articles, 1):
-            message = f"**{i}. {article['title']}**\n"
-            message += f"*Source: {article['source']}*\n"
-            message += f"{article['ai_summary']}\n"
-            message += f"🔗 {article['link']}"
-            
-            response = requests.post(self.webhook_url, json={"content": message})
-            
-            if response.status_code != 204:
-                logger.error(f"Failed to post article {i}")
-                return False
-        
-        logger.info("✓ Posted all articles individually")
-        return True
-    
-    def _format_digest(self, articles: List[Dict], title: str) -> str:
-        """
-        Format articles into a Discord message.
-        
-        Discord supports basic markdown formatting.
-        """
-        # Start with title and timestamp
-        timestamp = datetime.now().strftime("%A, %B %d, %Y at %I:%M %p")
-        message = f"**{title}**\n"
-        message += f"*{timestamp}*\n"
-        message += f"*Found {len(articles)} articles*\n\n"
-        message += "─" * 50 + "\n\n"
-        
-        # Add each article
-        for i, article in enumerate(articles, 1):
-            message += f"**{i}. {article['title']}**\n"
-            message += f"*Source: {article['source']}*\n"
-            message += f"{article['ai_summary']}\n"
-            message += f"🔗 {article['link']}\n\n"
-        
-        return message
-    
-    def _post_long_digest(self, articles: List[Dict], title: str) -> bool:
-        """
-        Post a digest that's too long for one message.
-        
-        Splits into multiple messages.
-        """
-        # Post title message first
-        timestamp = datetime.now().strftime("%A, %B %d, %Y at %I:%M %p")
-        header = f"**{title}**\n*{timestamp}*\n*Found {len(articles)} articles*\n"
-        
-        response = requests.post(
-            self.webhook_url,
-            json={"content": header}
-        )
-        
-        if response.status_code != 204:
-            logger.error("Failed to post header message")
-            return False
-        
-        # Post articles in batches of 3
-        batch_size = 3
-        for i in range(0, len(articles), batch_size):
-            batch = articles[i:i+batch_size]
-            message = ""
-            
-            for j, article in enumerate(batch, i+1):
-                message += f"**{j}. {article['title']}**\n"
-                message += f"*Source: {article['source']}*\n"
-                message += f"{article['ai_summary']}\n"
-                message += f"🔗 {article['link']}\n\n"
-            
-            response = requests.post(
-                self.webhook_url,
-                json={"content": message}
-            )
-            
-            if response.status_code != 204:
-                logger.error(f"Failed to post batch {i//batch_size + 1}")
-                return False
-        
-        logger.info("✓ Posted long digest in multiple messages")
-        return True
-    
     def test_webhook(self) -> bool:
         """
         Test if the webhook URL works.
-        
-        Returns:
-            True if webhook is valid, False otherwise
         """
         try:
             response = requests.post(
@@ -306,7 +149,7 @@ class DiscordPoster:
                 logger.info("✓ Webhook is working!")
                 return True
             else:
-                logger.error(f"Webhook test failed: {response.status_code}")
+                logger.error(f"Webhook test failed: {response.status_code} - {response.text}")
                 return False
                 
         except Exception as e:

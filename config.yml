@@ -4,9 +4,20 @@
 # MODEL CONFIGURATION
 # ============================================================
 api:
-  provider: "anthropic"  # "anthropic" or "gemini"
-  model: null            # Optional: "claude-sonnet-4-20250514" or "gemini-2.5-flash"
+  provider: "anthropic"
+  model: null
 
+# ============================================================
+# RANKING CONFIGURATION
+# ============================================================
+ranking:
+  # Bonus points for the #1 pre-ranked article from a feed.
+  # This bonus decays linearly. Ex: If 5, #1 gets +5, #2 gets +4, etc.
+  prerank_bonus_max: 5
+
+  # Guarantee inclusion for the top N pre-ranked articles from a feed,
+  # as long as they aren't excluded.
+  protected_count: 3
 
 # ============================================================
 # RSS FEEDS
@@ -42,6 +53,16 @@ feeds:
   - url: "https://feeds.fireside.fm/linuxunplugged/rss"
     name: "Linux Unplugged"
 
+  # --- Android & Pixel ---
+  - url: "https://www.androidpolice.com/feed/"
+    name: "Android Police"
+  - url: "https://arstechnica.com/gadgets/android/feed/"
+    name: "Ars Technica (Android)"
+  - url: "https://www.androidauthority.com/feed/"
+    name: "Android Authority"
+  - url: "https://9to5google.com/feed/"
+    name: "9to5Google"
+
   # --- Privacy & Security ---
   - url: "https://www.eff.org/rss/updates.xml"
     name: "EFF Deeplinks"
@@ -51,14 +72,8 @@ feeds:
   # --- Open Source ---
   - url: "https://github.blog/feed/"
     name: "GitHub Blog"
-  - url: "https://changelog.com/news/feed"
+  - url: "https://changelog.com/news/feed/"
     name: "Changelog News"
-
-  # --- Motorsports ---
-  - url: "https://www.motorsport.com/rss/f1/news/"
-    name: "Motorsport.com F1"
-  - url: "https://racer.com/feed/"
-    name: "Racer.com"
 
   # --- Fitness & Longevity ---
   - url: "https://peterattiamd.com/feed/"
@@ -89,213 +104,203 @@ feeds:
 # DIGEST SETTINGS
 # ============================================================
 digest:
-  max_age_hours: 24          # Only articles from last N hours
-  top_articles: 20           # Total articles to include in digest
-  min_score: 1               # Minimum relevance score to include
+  max_age_hours: 24
+  top_articles: 20
+  min_score: 1
   title: "📰 Morning RSS Digest"
+  embed_images: true
 
 
 # ============================================================
 # INTEREST PROFILE (for ranking)
 # ============================================================
-# Keywords are matched against title + summary + AI summary
-# Scoring: high=10pts, medium=5pts, low=2pts per match
-# Exclusions: any match = article dropped (score 0)
-
 interests:
-  high_priority:
-    
-    # R & Data Science
-    - "tidyverse"
-    - "tidymodels"
-    - "ggplot2"
-    - "dplyr"
-    - "shiny"
-    - "rstats"
-    - "r programming"
-    - "posit"
-    - "rstudio"
-    - "quarto"
-    - "data visualization"
-    - "dataviz"
-    - "nodejs"
-    - "node.js"
-    
-    # Linux & COSMIC
-    - "cosmic de"
-    - "cosmic desktop"
-    - "system76"
-    - "linux desktop"
-    - "arch linux"
-    - "arch"
-    
-    # Kettlebells & Fitness
-    - "kettlebell"
-    - "kettlebells"
-    - "kb snatch"
-    - "emom"
-    - "hiit"
-    - "longevity"
-    - "healthspan"
-    - "zone 2"
-    - "vo2max"
-    - "vo2 max"
-    
-    # Privacy & Open Source
-    - "open source"
-    - "proton"
-    - "protonmail"
-    - "proton vpn"
-    - "privacy"
-    - "tailscale"
-    
-    # Sports Analytics
-    - "sports analytics"
-    - "sports data"
+  tiers:
+    - name: "Critical"
+      score: 25
+      keywords:
+        - "android 16"
+        - "android beta"
+        - "cosmic de"
+        - "cosmic desktop"
+        - "system76"
+        - "arch linux"
+        - "ars technica"
 
-  medium_priority:
+    - name: "High"
+      score: 15
+      keywords:
+        # Pixel
+        - "google pixel"
+        - "pixel 10"
+        - "feature drop"
+        # R & Data Science
+        - "tidyverse"
+        - "tidymodels"
+        - "ggplot2"
+        - "dplyr"
+        - "shiny"
+        - "rstats"
+        - "r programming"
+        - "posit"
+        - "quarto"
+        - "data visualization"
+        - "dataviz"
+        # Kettlebells & Fitness
+        - "kettlebell"
+        - "kettlebells"
+        - "healthspan"
+        - "zone 2"
+        - "vo2max"
 
-    # Running & Track
-    - "running"
-    - "5k"
-    - "10k"
-    - "track and field"
-    - "track & field"
-    - "sprints"
-    - "sprint"
-    - "middle distance"
-    - "800m"
-    - "1500m"
-    - "400m"
-    - "diamond league"
-    - "ncaa track"
-    - "usatf"
-    - "world athletics"
-    - "cross country"
-    - "tempo run"
-    - "interval training"
-    
-    # Running Gear
-    - "hoka"
-    - "garmin"
-    - "running shoes"
-    - "runners world"
-    
-    # Nutrition
-    - "nutrition science"
-    - "protein"
-    - "pescatarian"
-    
-    # Politics
-    - "progressive"
-    - "social democracy"
-    
-    # Diabetes (work-adjacent but interesting)
-    - "diabetes"
-    - "type 2 diabetes"
-    - "insulin resistance"
-    
-    # Linux General
-    - "linux"
-    - "ubuntu"
-    - "fedora"
-    - "kde"
-    - "gnome"
-    - "terminal"
-    - "cli"
-    
-    # Audiobooks
-    - "audiobook"
-    - "audiobooks"
-    
-    # Dataviz
-    - "d3.js"
-    - "observable"
-    - "data journalism"
-    
-    # Miami Marlins (minimal)
-    - "miami marlins"
-    - "marlins"
-    
-    # Masters Running
-    - "masters athletics"
-    - "over 40"
-    - "masters running"
+    - name: "Medium"
+      score: 8
+      keywords:
+        # Running (downplayed)
+        - "running"
+        - "track and field"
+        - "diamond league"
+        - "world athletics"
+        - "masters athletics"
+        # Android General
+        - "android"
+        - "android os"
+        - "android police"
+        - "android authority"
+        # Linux & Privacy
+        - "linux"
+        - "linux desktop"
+        - "open source"
+        - "proton"
+        - "privacy"
+        - "tailscale"
+        # Other
+        - "sports analytics"
+        - "nodejs"
 
-  low_priority:
-    # Most of this is in Instagram or Reddit. Don't need overkill!
+    - name: "Low"
+      score: 3
+      keywords:
+        - "5k"
+        - "10k"
+        - "tempo run"
+        - "interval training"
+        - "hoka"
+        - "garmin"
+        - "ubuntu"
+        - "kde"
+        - "gnome"
+        - "progressive"
+        - "d3.js"
+        - "data journalism"
+        - "miami hurricanes"
+
+    - name: "Very Low"
+      score: 1
+      keywords:
+        - "sysadmin"
+        - "devops"
+        - "server"
+        - "github"
+        - "git"
+        - "miami marlins"
+
+    exclusions:
+
+      # Work mode - avoid in morning digest
+
+      - "genomics"
+
+      - "genomic"
+
+      - "bioinformatics"
+
+      - "gene expression"
+
+      - "epidemiology"
+
+      - "epidemiological"
+
+      - "hiv"
+
+      - "opioid"
+
+      - "gwas"
+
+      # AI hype
+
+      - "chatgpt is amazing"
+
+      - "ai will replace"
+
+      # Tech not using
+
+      - "posit workbench"
+
+      - "react native"
+
+      - "angular"
+
+      - "steam"
+
+      # Other
+
+      - "meal prep"
+
+      - "union strike"
+
   
-    # NCAA & Miami
-    - "ncaa football"
-    - "college football"
-    - "miami hurricanes"
-    - "hurricanes football"
-    - "hurricanes basketball"
-    
-    # NASCAR
-    - "nascar"
-    - "cup series"
-    - "xfinity series"
 
-    # F1 (high-level only)
-    - "formula 1"
-    - "f1"
-    - "norris"
-    - "mclaren"
-    - "hamilton"
+    penalties:
+
+      # General low-value or clickbait-style phrases
+
+      - score: -5
+
+        keywords:
+
+          - "what you need to know"
+
+          - "everything you need to know"
+
+          - "is set to"
+
+          - "could be"
+
+          - "might be"
+
   
-    # Sysadmin
-    - "sysadmin"
-    - "devops"
-    - "server"
-    
-    # Climate (occasional)
-    - "climate policy"
-    - "renewable energy"
-    
-    # General tech
-    - "github"
-    - "git"
 
-  exclusions:
-    # Work mode - avoid in morning digest
-    - "genomics"
-    - "genomic"
-    - "bioinformatics"
-    - "gene expression"
-    - "epidemiology"
-    - "epidemiological"
-    - "hiv"
-    - "opioid"
-    - "genome-wide"
-    - "gwas"
-    - "snp"
-    - "allele"
-    
-    # Sports to skip
-    - "nfl"
-    - "nba"
-    
-    # AI hype
-    - "chatgpt is amazing"
-    - "ai will replace"
-    - "prompt engineering secrets"
-    
-    # Tech not using
-    - "posit workbench"
-    - "fedora"
-    - "red hat"
-    - "react native"
-    - "angular"
-    - "steam"
-    - "valve steam"
-    
-    # Other exclusions
-    - "meal prep"
-    - "meal planning"
-    - "weekly meal"
-    - "raspberry pi project"
-    - "pi project ideas"
-    - "union strike"
-    - "labor union"
-    
+      # Tech topics explicitly removed or down-played from your config
+
+      - score: -8
+
+        keywords:
+
+          - "pop os"
+
+          - "pop!_os"
+
+          - "red hat"
+
+          - "angular"
+
+          - "react native"
+
+      
+
+      # Generic sports/gaming terms that might bypass exclusions
+
+      - score: -3
+
+        keywords:
+
+          - "esports"
+
+          - "game review"
+
+          - "season preview"
+
+          - "steam" # Already in exclusions, but a penalty can also help
+
+  

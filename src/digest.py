@@ -29,7 +29,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from feed_fetcher import FeedFetcher
 from summarizer import create_summarizer
-from ranker import ArticleRanker
+from ranker import create_ranker_from_config
 from discord_poster import DiscordPoster
 
 
@@ -180,13 +180,7 @@ def run_digest(
     # --- STEP 2: PRE-RANK (using RSS summaries only) ---
     logger.info("📊 Pre-ranking by relevance (RSS summaries)...")
 
-    interests = config.get('interests', {})
-    ranker = ArticleRanker(
-        high_priority=interests.get('high_priority', []),
-        medium_priority=interests.get('medium_priority', []),
-        low_priority=interests.get('low_priority', []),
-        exclusions=interests.get('exclusions', []),
-    )
+    ranker = create_ranker_from_config(config)
 
     # Get candidate buffer - summarize more than we need to account for score changes
     candidate_buffer = digest_config.get('candidate_buffer', 35)
@@ -231,9 +225,10 @@ def run_digest(
     # --- STEP 4: FINAL RANK (with AI summaries + protection) ---
     logger.info("📊 Final ranking with AI summaries...")
 
-    # Protection settings from config (with defaults)
-    protected_count = digest_config.get('protected_positions', 5)
-    prerank_bonus_max = digest_config.get('prerank_bonus_max', 5)
+    # Get ranking settings from config (with defaults)
+    ranking_config = config.get('ranking', {})
+    protected_count = ranking_config.get('protected_count', 3)
+    prerank_bonus_max = ranking_config.get('prerank_bonus_max', 5)
 
     ranked = ranker.rank_articles(
         summarized,
@@ -281,9 +276,9 @@ def run_digest(
         return 0
 
     logger.info("📤 Posting to Discord...")
-    poster = DiscordPoster(webhook_url=env_vars['webhook_url'])
+    poster = DiscordPoster(webhook_url=env_vars['webhook_url'], config=config)
 
-    success = poster.post_three_tier_digest(ranked, title)
+    success = poster.post_digest(ranked, title)
 
     if success:
         logger.info("✅ Digest complete!")

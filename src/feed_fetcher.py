@@ -35,28 +35,20 @@ class FeedFetcher:
             feed_name: Human-readable name for logging
             
         Returns:
-            List of article dictionaries with keys:
-            - title: Article title
-            - link: Article URL
-            - summary: Short description (if available)
-            - published: Publication date
-            - source: Feed name
+            List of article dictionaries.
         """
         logger.info(f"Fetching feed: {feed_name}")
         
         try:
-            # feedparser does all the heavy lifting
             feed = feedparser.parse(feed_url)
             
-            if feed.bozo:  # bozo=1 means malformed feed
+            if feed.bozo:
                 logger.warning(f"Feed {feed_name} has parsing issues: {feed.bozo_exception}")
             
             articles = []
             for entry in feed.entries:
-                # Extract publication date (different feeds use different fields)
                 published = self._get_published_date(entry)
                 
-                # Skip old articles
                 if published and published < self.cutoff_time:
                     continue
                 
@@ -65,7 +57,8 @@ class FeedFetcher:
                     'link': entry.get('link', ''),
                     'summary': entry.get('summary', entry.get('description', '')),
                     'published': published,
-                    'source': feed_name
+                    'source': feed_name,
+                    'image_url': self._get_image_url(entry)
                 }
                 
                 articles.append(article)
@@ -76,7 +69,7 @@ class FeedFetcher:
         except Exception as e:
             logger.error(f"Error fetching {feed_name}: {e}")
             return []
-    
+
     def fetch_all_feeds(self, feeds: List[Dict]) -> List[Dict]:
         """
         Fetch articles from multiple RSS feeds.
@@ -95,6 +88,42 @@ class FeedFetcher:
         
         logger.info(f"Total articles fetched: {len(all_articles)}")
         return all_articles
+    
+    def _get_image_url(self, entry) -> str:
+        """
+        Extract an image URL from a feed entry.
+        
+        Tries various common locations for thumbnails or content images.
+        """
+        # Check for media:thumbnail
+        if 'media_thumbnail' in entry and entry.media_thumbnail:
+            return entry.media_thumbnail[0].get('url')
+            
+        # Check for media:content
+        if 'media_content' in entry and entry.media_content:
+            for item in entry.media_content:
+                if item.get('medium') == 'image' and item.get('url'):
+                    return item.get('url')
+
+        # Check for enclosures (often used for images)
+        if 'links' in entry:
+            for link in entry.links:
+                if link.get('rel') == 'enclosure' and 'image' in link.get('type', ''):
+                    return link.get('href')
+        
+        # Last resort: check summary for an <img> tag
+        summary_html = entry.get('summary', '')
+        if 'src=' in summary_html:
+            try:
+                # Basic and fragile img parsing, but better than nothing
+                img_tag = summary_html.split('<img')[1].split('>')[0]
+                src_attr = [attr for attr in img_tag.split() if 'src=' in attr][0]
+                return src_attr.split('"')[1]
+            except:
+                pass # Fail silently if parsing fails
+
+        return None
+
     
     def _get_published_date(self, entry) -> datetime:
         """
