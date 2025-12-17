@@ -219,7 +219,7 @@ interests:
 
   penalties:
     # General low-value or clickbait-style phrases
-    - score: -5
+    - score: -2
       keywords:
         - "what you need to know"
         - "everything you need to know"
@@ -228,7 +228,7 @@ interests:
         - "might be"
 
     # Tech topics explicitly removed or down-played from your config
-    - score: -8
+    - score: -1
       keywords:
         - "pop os"
         - "pop!_os"
