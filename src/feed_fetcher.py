@@ -111,16 +111,21 @@ class FeedFetcher:
                 if link.get('rel') == 'enclosure' and 'image' in link.get('type', ''):
                     return link.get('href')
         
+        # Check for image in content (often contains full HTML)
+        if 'content' in entry and entry.content:
+            for content_item in entry.content:
+                if content_item.get('type') == 'text/html' or 'html' in content_item.get('type', ''):
+                    html_content = content_item.get('value', '')
+                    img_match = re.search(r'<img[^>]+src="([^">]+)"', html_content)
+                    if img_match:
+                        return img_match.group(1)
+
         # Last resort: check summary for an <img> tag
         summary_html = entry.get('summary', '')
-        if 'src=' in summary_html:
-            try:
-                # Basic and fragile img parsing, but better than nothing
-                img_tag = summary_html.split('<img')[1].split('>')[0]
-                src_attr = [attr for attr in img_tag.split() if 'src=' in attr][0]
-                return src_attr.split('"')[1]
-            except:
-                pass # Fail silently if parsing fails
+        if summary_html:
+            img_match = re.search(r'<img[^>]+src="([^">]+)"', summary_html)
+            if img_match:
+                return img_match.group(1)
 
         return None
 

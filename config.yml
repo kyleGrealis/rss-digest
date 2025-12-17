@@ -193,6 +193,11 @@ interests:
         - "github"
         - "git"
         - "miami marlins"
+        # AI & ML
+        - "artificial intelligence"
+        - "machine learning"
+        - "llm"
+        - "large language model"
 
   exclusions:
     # Work mode - avoid in morning digest
@@ -243,4 +248,9 @@ interests:
         - "game review"
         - "season preview"
         - "steam" # Already in exclusions, but a penalty can also help
+    
+    # AI hype penalty
+    - score: -2
+      keywords:
+        - "ai will replace"
   
