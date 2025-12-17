@@ -58,8 +58,8 @@ feeds:
     name: "Android Police"
   - url: "https://arstechnica.com/gadgets/android/feed/"
     name: "Ars Technica (Android)"
-  - url: "https://www.androidauthority.com/feed/"
-    name: "Android Authority"
+  # - url: "https://www.androidauthority.com/feed/"
+  #   name: "Android Authority"
   - url: "https://9to5google.com/feed/"
     name: "9to5Google"
 
@@ -82,12 +82,12 @@ feeds:
     name: "Stronger By Science"
 
   # --- Politics ---
-  - url: "https://www.theguardian.com/us-news/rss"
-    name: "The Guardian US"
-  - url: "https://theintercept.com/feed/?rss"
-    name: "The Intercept"
-  - url: "https://jacobin.com/feed/"
-    name: "Jacobin"
+  # - url: "https://www.theguardian.com/us-news/rss"
+  #   name: "The Guardian US"
+  # - url: "https://theintercept.com/feed/?rss"
+  #   name: "The Intercept"
+  # - url: "https://jacobin.com/feed/"
+  #   name: "Jacobin"
 
   # --- Miami Sports ---
   - url: "https://miamihurricanes.com/rss"
