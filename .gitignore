@@ -22,3 +22,6 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+
+# AI
+GEMINI.md
