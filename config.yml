@@ -13,11 +13,11 @@ api:
 ranking:
   # Bonus points for the #1 pre-ranked article from a feed.
   # This bonus decays linearly. Ex: If 5, #1 gets +5, #2 gets +4, etc.
-  prerank_bonus_max: 5
+  prerank_bonus_max: 2
 
   # Guarantee inclusion for the top N pre-ranked articles from a feed,
   # as long as they aren't excluded.
-  protected_count: 3
+  protected_count: 2
 
 # ============================================================
 # RSS FEEDS
@@ -121,12 +121,13 @@ interests:
       keywords:
         - "android 16"
         - "cosmic desktop"
-        - "system76"
         - "arch linux"
-        - "pixel 10"
         - "tidymodels"
         - "quarto"
         - "tailscale"
+        - "privacy"
+        - "training"
+        - "node"
 
     - name: "Standard"
       score: 1
@@ -155,12 +156,13 @@ interests:
         - "vo2max"
         # Running (downplayed)
         - "running"
+        - "track"
+        - "mile"
         - "track and field"
         - "diamond league"
         - "world athletics"
         - "masters athletics"
         # Android General
-        - "android"
         - "android os"
         - "android police"
         - "android authority"
@@ -169,7 +171,6 @@ interests:
         - "linux desktop"
         - "open source"
         - "proton"
-        - "privacy"
         # Other
         - "sports analytics"
         - "nodejs"
