@@ -72,59 +72,66 @@ class ArticleRanker:
                 return True
         return False
 
-    def _count_keyword_matches(self, text: str, keywords: Set[str]) -> int:
+    def _count_keyword_matches(self, text: str, keywords: Set[str]) -> List[str]:
         """
-        Count how many keywords from a set appear in the text.
+        Find which keywords from a set appear in the text.
         Uses word boundary matching for single words and substring matching for phrases.
         """
-        matches = 0
+        matched_keywords = []
         for keyword in keywords:
             if not keyword:
                 continue
             # For multi-word phrases, use simple substring matching
             if ' ' in keyword:
                 if keyword in text:
-                    matches += 1
+                    matched_keywords.append(keyword)
             # For single words, use word boundary matching
             else:
                 pattern = r'\b' + re.escape(keyword) + r'\b'
                 if re.search(pattern, text):
-                    matches += 1
-        return matches
+                    matched_keywords.append(keyword)
+        return matched_keywords
 
-    def score_article(self, article: Dict) -> int:
+    def score_article(self, article: Dict) -> (int, List[str]):
         """
         Calculate a relevance score for a single article based on tiered keywords and penalties.
         The score is uncapped.
 
         Returns:
-            An integer score (0 if excluded).
+            A tuple containing:
+            - An integer score (0 if excluded).
+            - A list of keywords that were matched.
         """
         text = self._get_searchable_text(article)
+        all_matched_keywords = []
 
         if self._check_exclusions(text):
             logger.debug(f"Excluded: {article.get('title', 'Unknown')[:50]}")
-            return 0
+            return 0, []
 
         # Calculate positive score from tiers
         total_score = 0
         match_details = {}
         for tier in self.tiers:
-            matches = self._count_keyword_matches(text, tier['keywords'])
-            if matches > 0:
+            matched_in_tier = self._count_keyword_matches(text, tier['keywords'])
+            if matched_in_tier:
+                matches = len(matched_in_tier)
                 tier_score = matches * tier['score']
                 total_score += tier_score
                 match_details[tier['name']] = matches
+                all_matched_keywords.extend(matched_in_tier)
         
         # Calculate negative score from penalties
         penalty_score = 0
         penalty_details = []
         for penalty in self.penalties:
-            matches = self._count_keyword_matches(text, penalty['keywords'])
-            if matches > 0:
+            matched_in_penalty = self._count_keyword_matches(text, penalty['keywords'])
+            if matched_in_penalty:
+                matches = len(matched_in_penalty)
                 penalty_amount = matches * penalty['score']
                 penalty_score += penalty_amount
                 penalty_details.append(f"Penalty:{matches}x({penalty['score']})")
+                all_matched_keywords.extend(matched_in_penalty)
 
         final_score = total_score + penalty_score
 
@@ -136,7 +143,7 @@ class ArticleRanker:
                 f"Score {final_score} (base:{total_score}, penalty:{penalty_score}): {article.get('title', 'Unknown')[:40]} ({details_str})"
             )
 
-        return final_score
+        return final_score, all_matched_keywords
 
     def rank_articles(
         self,
@@ -158,7 +165,7 @@ class ArticleRanker:
 
         Returns:
             A list of articles sorted by score (highest first), with
-            'relevance_score' added to each.
+            'relevance_score' and 'keywords_matched' added to each.
         """
         logger.info(f"Ranking {len(articles)} articles...")
 
@@ -168,7 +175,8 @@ class ArticleRanker:
         low_score_count = 0
 
         for article in articles:
-            score = self.score_article(article)
+            score, matched_keywords = self.score_article(article)
+            article['keywords_matched'] = matched_keywords
             pre_rank = article.get('pre_rank_position')
 
             # Exclusions ALWAYS override protection

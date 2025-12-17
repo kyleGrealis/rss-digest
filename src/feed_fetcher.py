@@ -6,6 +6,7 @@ Uses feedparser library to handle various RSS/Atom formats.
 """
 
 import feedparser
+import re
 from datetime import datetime, timedelta
 from typing import List, Dict
 import logging
