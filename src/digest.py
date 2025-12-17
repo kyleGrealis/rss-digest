@@ -28,6 +28,7 @@ from feed_fetcher import FeedFetcher
 from summarizer import create_summarizer
 from ranker import create_ranker_from_config
 from discord_poster import DiscordPoster
+from stats_logger import StatsLogger
 
 
 # ============================================================ 
@@ -238,7 +239,12 @@ def run_digest(config: dict, env_vars: dict, dry_run: bool = False, limit: int =
         return 0
     logger.info(f"Final selection: {len(ranked)} articles")
 
-    # STEP 5: POST
+    # STEP 5: LOG STATS
+    logger.info("✍️  Logging final digest stats...")
+    stats_logger = StatsLogger()
+    stats_logger.log_run(ranked)
+
+    # STEP 6: POST
     if dry_run:
         logger.info("🏃 DRY RUN - skipping Discord post. Final ranked articles:")
         for i, article in enumerate(ranked, 1):
