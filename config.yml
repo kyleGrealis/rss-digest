@@ -13,7 +13,7 @@ api:
 ranking:
   # Bonus points for the #1 pre-ranked article from a feed.
   # This bonus decays linearly. Ex: If 5, #1 gets +5, #2 gets +4, etc.
-  prerank_bonus_max: 2
+  prerank_bonus_max: 3
 
   # Guarantee inclusion for the top N pre-ranked articles from a feed,
   # as long as they aren't excluded.
@@ -40,8 +40,8 @@ feeds:
     name: "Posit Blog"
   - url: "https://www.tidyverse.org/blog/index.xml"
     name: "Tidyverse Blog"
-  - url: "https://emilyriederer.com/index.xml"
-    name: "Emily Riederer"
+  - url: "https://nodejs.org/en/blog"
+    name: "Node.js Blog"
 
   # --- Linux & COSMIC ---
   - url: "https://blog.system76.com/rss"
@@ -81,18 +81,6 @@ feeds:
   - url: "https://www.strongerbyscience.com/feed/"
     name: "Stronger By Science"
 
-  # --- Politics ---
-  # - url: "https://www.theguardian.com/us-news/rss"
-  #   name: "The Guardian US"
-  # - url: "https://theintercept.com/feed/?rss"
-  #   name: "The Intercept"
-  # - url: "https://jacobin.com/feed/"
-  #   name: "Jacobin"
-
-  # --- Miami Sports ---
-  - url: "https://miamihurricanes.com/rss"
-    name: "Miami Hurricanes"
-
   # --- Dataviz & Books ---
   - url: "https://flowingdata.com/feed/"
     name: "Flowing Data"
@@ -127,17 +115,17 @@ interests:
         - "tailscale"
         - "privacy"
         - "training"
-        - "node"
+        - "node.js"
 
     - name: "Standard"
       score: 1
       keywords:
+        - "open source"
+        - "foss"
         - "android beta"
         - "cosmic de"
-        - "ars technica"
         # Pixel
         - "google pixel"
-        - "feature drop"
         # R & Data Science
         - "tidyverse"
         - "ggplot2"
@@ -148,16 +136,14 @@ interests:
         - "posit"
         - "data visualization"
         - "dataviz"
+        - "node"
         # Kettlebells & Fitness
-        - "kettlebell"
         - "kettlebells"
         - "healthspan"
         - "zone 2"
         - "vo2max"
         # Running (downplayed)
-        - "running"
         - "track"
-        - "mile"
         - "track and field"
         - "diamond league"
         - "world athletics"
@@ -171,6 +157,7 @@ interests:
         - "linux desktop"
         - "open source"
         - "proton"
+        - "security"
         # Other
         - "sports analytics"
         - "nodejs"
@@ -180,19 +167,13 @@ interests:
         - "interval training"
         - "hoka"
         - "garmin"
-        - "ubuntu"
-        - "kde"
-        - "gnome"
         - "progressive"
         - "d3.js"
-        - "data journalism"
-        - "miami hurricanes"
         - "sysadmin"
         - "devops"
         - "server"
         - "github"
         - "git"
-        - "miami marlins"
         # AI & ML
         - "artificial intelligence"
         - "machine learning"
@@ -218,6 +199,7 @@ interests:
     - "react native"
     - "angular"
     - "steam"
+    - "kde"
     # Other
     - "meal prep"
     - "union strike"
