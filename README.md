@@ -62,18 +62,18 @@ micro config.yml
 
 ### 5. Test it manually
 ```bash
-# Load environment variables
-set -a; source .env; set +a
+# Test feeds
+./run-digest.sh --test-feeds
 
-# Run test
-python test_fetcher.py
+# Run full dry run (no Discord posting)
+./run-digest.sh --dry-run
 ```
 
 ### 6. Set up cron automation
 ```bash
 crontab -e
 # Add this line for 7am daily execution:
-0 7 * * * cd /home/pi/rss-digest && /home/pi/rss-digest/venv/bin/python /home/pi/rss-digest/src/digest.py >> /home/pi/rss-digest/logs/digest.log 2>&1
+0 7 * * * cd /home/pi/rss-digest && /home/pi/rss-digest/src/digest.py >> /home/pi/rss-digest/logs/digest.log 2>&1
 ```
 
 ## 📁 Project Structure
@@ -88,7 +88,6 @@ rss-digest/
 ├── config.yml                # RSS feeds & interests (gitignored)
 ├── .env                      # API keys (gitignored)
 ├── requirements.txt          # Python dependencies
-├── test_fetcher.py           # End-to-end test script
 └── logs/                     # Execution logs (gitignored)
 ```
 
@@ -123,18 +122,21 @@ digest:
 
 ## 🧪 Testing
 
-Run the test script to validate the full pipeline:
-```bash
-source venv/bin/activate
-set -a; source .env; set +a
-python test_fetcher.py
-```
+The main script includes several testing flags to validate your setup:
 
-This will:
-1. Fetch articles from configured feeds
-2. Summarize the first 2-3 with Claude
-3. Post to Discord channel
-4. Show logs and validation
+```bash
+# 1. Test Feed Fetching
+./run-digest.sh --test-feeds
+# Checks if all configured RSS feeds are reachable and parsing correctly.
+
+# 2. Test API Connections
+./run-digest.sh --test-apis
+# Verifies connection to Anthropic/Gemini and sends a test message to Discord.
+
+# 3. Dry Run
+./run-digest.sh --dry-run
+# Runs the full pipeline (Fetch -> Summarize -> Rank) but prints results to console instead of posting to Discord.
+```
 
 ## 📊 Example Output
 
@@ -157,7 +159,7 @@ Found 20 articles
 - Ensure articles are within `max_age_hours` window
 
 ### Discord webhook not working
-- Test webhook manually: `python -c "from src.discord_poster import DiscordPoster; DiscordPoster('YOUR_WEBHOOK').test_webhook()"`
+- Test connection: `./run-digest.sh --test-apis`
 - Verify webhook URL in `.env`
 - Check Discord channel permissions
 
