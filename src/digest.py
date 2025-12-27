@@ -155,7 +155,7 @@ def test_apis(config: dict, env_vars: dict) -> bool:
     # Test Discord Webhook
     try:
         poster = DiscordPoster(webhook_url=env_vars['webhook_url'], config=config)
-        if poster.test_webhook():
+        if poster.test_connection():
             logger.info("  [SUCCESS] Discord webhook connection is working.")
         else:
             logger.error("  [FAILURE] Discord webhook connection failed.")
