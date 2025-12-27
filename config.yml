@@ -38,9 +38,9 @@ feeds:
     name: "R Weekly"
   - url: "https://posit.co/feed/"
     name: "Posit Blog"
-  - url: "https://www.tidyverse.org/blog/index.xml"
+  - url: "https://www.tidyverse.org/index.xml"
     name: "Tidyverse Blog"
-  - url: "https://nodejs.org/en/blog"
+  - url: "https://nodejs.org/en/feed/blog.xml"
     name: "Node.js Blog"
 
   # --- Linux & COSMIC ---
@@ -48,10 +48,12 @@ feeds:
     name: "System76 Blog"
   - url: "https://www.omgubuntu.co.uk/feed"
     name: "OMG! Ubuntu"
-  - url: "https://www.phoronix.com/rss.php"
-    name: "Phoronix"
+  # - url: "https://www.phoronix.com/rss.php"
+  #   name: "Phoronix"
   - url: "https://feeds.fireside.fm/linuxunplugged/rss"
     name: "Linux Unplugged"
+  - url: "https://www.bleepingcomputer.com/feed/tag/linux/"
+    name: "BleepingComputer (Linux)"
 
   # --- Android & Pixel ---
   - url: "https://www.androidpolice.com/feed/"
@@ -200,6 +202,14 @@ interests:
     - "angular"
     - "steam"
     - "kde"
+    # Low-level Phoronix noise
+    - "linux kernel patch"
+    - "linux 6."
+    - "mesa"
+    - "drm-next"
+    - "patch series"
+    - "pull request"
+    - "merge window"
     # Other
     - "meal prep"
     - "union strike"
@@ -235,4 +245,23 @@ interests:
     - score: -2
       keywords:
         - "ai will replace"
+
+    # Low-level Technical / Maintenance (Phoronix noise reduction)
+    - score: -3
+      keywords:
+        - "benchmarks"
+        - "regression"
+        - "support added"
+        - "testing"
+        - "driver update"
+
+    # Shopping / Deals
+    - score: -2
+      keywords:
+        - "deals of the day"
+        - "on sale"
+        - "discount"
+        - "price drop"
+        - "limited time deal"
+
   
